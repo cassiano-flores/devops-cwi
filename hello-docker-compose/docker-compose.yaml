@@ -1,0 +1,35 @@
+version: "3"
+
+services:   #SERVIÇOS (CONTAINERS)
+  mongodb:  #1° SERVIÇO
+    image: mongo:4.2.6                  #IMAGEM QUE O CONTAINER IRÁ RODAR
+    container_name: hello-docker-mongo  #NOME DO CONTAINER
+    environment:                        #DEFINE AS VARÁVEIS DE AMBIENTE NO CONTAINER
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:     #ASSOCIAÇÃO DO VOLUME JÁ CRIADO   HOST:CONTAINER
+      - mongodb_volume:/data/db
+    ports:       #ASSOCIAÇÃO DAS PORTAS
+      - "27017:27017"
+    networks:    #ASSOCIAÇÃO DA REDE JÁ CRIADA
+      - app
+
+  app:  #2° SERVIÇO
+    container_name: hello-docker-app
+    build:   #INDICA COMO BUILDAR O CONTAINER
+      context: .              #DIRETÓRIO PRA PROCURAR
+      dockerfile: Dockerfile  #NOME DO ARQUIVO PRA PROCURAR
+    environment:
+      - mongodb.uri=mongodb://root:password@mongodb:27017
+    ports:
+      - "9091:8080"
+    networks:
+      - app
+    depends_on:   #INDICA DO QUE DEPENDE PARA CRIAR (NESSE CASO, O 1° SERVIÇO)
+      - mongodb
+
+volumes:   #VOLUMES
+  mongodb_volume:      #CRIAÇÃO DESTE VOLUME PRIMEIRAMENTE, E POSTERIORMENTE É ASSOCIADO NO CONTAINER
+
+networks:  #REDES
+  app:                 #CRIAÇÃO DESTA REDE PRIMEIRAMENTE, E POSTERIORMENTE É ASSOCIADA NO CONTAINER
